@@ -1,2 +1,2 @@
-print ('version B of this edit')
-print ("I am making this changes")
+print ('This is vresion B if the edit')
+print ("I am making this change")
