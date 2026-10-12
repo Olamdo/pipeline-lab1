@@ -1,0 +1,127 @@
+
+ 
+trigger:
+  branches:
+    include:
+      - "*"
+ 
+pool:
+  vmImage: "ubuntu-latest"
+ 
+variables:
+  nodeVersion: "17.x"
+ 
+  # Azure Resource Manager connection created during pipeline creation
+  azureSubscription: "12b4e8dd"
+ 
+stages:
+  - stage: Build
+    displayName: "Build Stage"
+    jobs:
+      - job: Build
+        displayName: "Build Job"
+        steps:
+          - checkout: self
+            displayName: "Checkout repository"
+ 
+          - task: NodeTool@0
+            inputs:
+              versionSpec: $(nodeVersion)
+            displayName: "Install Node.js"
+ 
+          - task: Cache@2
+            displayName: "Cache node_modules"
+            inputs:
+              key: 'yarn | "$(Agent.OS)" | $(Build.SourcesDirectory)/yarn.lock'
+              restoreKeys: |
+                yarn | "$(Agent.OS)"
+                yarn
+              path: $(Build.SourcesDirectory)/node_modules
+ 
+          - script: |
+              yarn install  --ignore-engines --frozen-lockfile
+              yarn lint
+              yarn eslint
+              yarn stylelint
+              yarn build
+            displayName: "Install dependencies and run tests"
+ 
+  - stage: DeployDev
+    displayName: "Deploy to Development"
+    dependsOn: Build
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+    jobs:
+      - deployment: DeployToDev
+        displayName: "Deploy to Development Storage"
+        environment: "development"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                  displayName: "Checkout repository"
+ 
+                - task: NodeTool@0
+                  inputs:
+                    versionSpec: $(nodeVersion)
+                  displayName: "Install Node.js"
+ 
+                - script: |
+                    export VUE_APP_API_BASE=$(DEV_API_BASE_URL)
+                    # Since we're creating production builds for dev (for good reasons), we are now
+                    # copying the favicon over so users don't easily mistake dev and prod console tabs.
+                    cp ./public/img/development/uniondirect_logo.png ./public/img/production/uniondirect_logo.png
+                    cp ./public/img/development/uniondirect_logo.png ./src/assets/uniondirect_logo.png
+                    yarn install --ignore-engines 
+                    yarn build
+                    # Copy built files to root for deployment
+                  displayName: "Build for Development"
+ 
+                  # Deploy to Azure Static Web App using the official task
+                - task: AzureStaticWebApp@0
+                  displayName: "Deploy to Azure Static Web App"
+                  inputs:
+                    azure_static_web_apps_api_token: $(AZURE_STATIC_WEB_APPS_API_TOKEN)
+                    app_location: "./dist"
+                    api_location: ""
+                    output_location: "."
+                    skip_app_build: true # We already built the app above
+ 
+  - stage: DeployProd
+    displayName: "Deploy to Production"
+    dependsOn: Build
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/prod')
+    jobs:
+      - deployment: DeployToProd
+        displayName: "Deploy to Production Storage"
+        environment: "union-direct-prod-env"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                  displayName: "Checkout repository"
+ 
+                - task: NodeTool@0
+                  inputs:
+                    versionSpec: $(nodeVersion)
+                  displayName: "Install Node.js"
+ 
+                - script: |
+                    export VUE_APP_API_BASE=$(PROD_API_BASE_URL)
+                    cp ./public/img/development/uniondirect_logo.png ./public/img/production/uniondirect_logo.png
+                    cp ./public/img/development/uniondirect_logo.png ./src/assets/uniondirect_logo.png
+                    yarn install --ignore-engines 
+                    yarn build
+                  displayName: "Build for Production"
+ 
+                - task: AzureStaticWebApp@0
+                  displayName: "Deploy to Azure Static Web App"
+                  inputs:
+                    azure_static_web_apps_api_token: $(AZURE_STATIC_WEB_APPS_API_TOKEN_PROD)
+                    app_location: "./dist"
+                    api_location: ""
+                    output_location: "."
+                    skip_app_build: true
+ 
+ 
