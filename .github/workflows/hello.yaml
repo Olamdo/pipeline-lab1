@@ -16,3 +16,5 @@ jobs:
         run: ls -la
       - name: Show what triggered this run
         run: echo "Triggered by ${{ github.event_name }} on ${{ github.ref }}"
+      - name: Typo command
+        run: ech "this will fail"
