@@ -6,10 +6,10 @@ on:
   workflow_dispatch:
 jobs:
   hello:
-    runs-on ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v99
       - name: Say hello
         run: echo "Hello from my first pipeline"
       - name: List the files
@@ -17,4 +17,4 @@ jobs:
       - name: Show what triggered this run
         run: echo "Triggered by ${{ github.event_name }} on ${{ github.ref }}"
       - name: Typo command
-        run: ech "this will fail"
+        run: echo "this will fail"
