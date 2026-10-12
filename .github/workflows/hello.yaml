@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@v99
+        uses: actions/checkout@v4
       - name: Say hello
         run: echo "Hello from my first pipeline"
       - name: List the files
