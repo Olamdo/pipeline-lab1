@@ -18,3 +18,5 @@ jobs:
         run: echo "Triggered by ${{ github.event_name }} on ${{ github.ref }}"
       - name: Typo command
         run: echo "this will fail"
+      - name: Read the readfile
+        run: cat readme.md
