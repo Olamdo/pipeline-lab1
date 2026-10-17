@@ -1,0 +1,20 @@
+name: Multi-Job Pipeline
+on:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create a build file
+        run: echo "build output" > build.txt
+      - name: Show it exists
+        run: ls -la build.txt
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Look for the build file
+        run: ls -la build.txt
