@@ -11,10 +11,23 @@ jobs:
         run: echo "build output" > build.txt
       - name: Show it exists
         run: ls -la build.txt
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check style
+        run: echo "Checking style..."
   test:
     needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Look for the build file
-        run: ls -la build.txt
+      - name: Run tests
+        run: echo "Running tests..."
+  report:
+    needs: [build, lint, test]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Summarize
+        run: echo "build=${{ needs.build.result }} lint=${{ needs.lint.result }} test=${{ needs.test.result }}"
