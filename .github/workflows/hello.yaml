@@ -13,6 +13,6 @@ jobs:
       - name: Say hello
         run: echo "Hello from my first pipeline"
       - name: List the files
-        run: ls -la
+        run: ls
       - name: Show what triggered this run
         run: echo "Triggered by ${{ github.event_name }} on ${{ github.ref }}"
