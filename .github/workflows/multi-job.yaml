@@ -9,7 +9,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Create a build file
         run: echo "build output" > build.txt
-      - name: Show it exists
+      - name: exit 1
         run: ls -la build.txt
   lint:
     runs-on: ubuntu-latest
