@@ -9,8 +9,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Create a build file
         run: echo "build output" > build.txt
-      - name: exit 1
-        run: ls -la build.txt
+      - name: show the build exist
+        run: exit 1
   lint:
     runs-on: ubuntu-latest
     steps:
