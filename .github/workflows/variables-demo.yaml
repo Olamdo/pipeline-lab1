@@ -1,0 +1,36 @@
+name: Variables Demo
+on:
+  pull_request:
+  workflow_dispatch:
+env:
+  APP_NAME: pipeline-lab
+  GREETING: Hello
+jobs:
+  show-variables:
+    runs-on: ubuntu-latest
+    env:
+      JOB_LEVEL: set-at-job
+    steps:
+      - name: Workflow and job variables
+        run: |
+          echo "$GREETING from $APP_NAME"
+          echo "Job level: $JOB_LEVEL"
+      - name: Step level overrides
+        env:
+          GREETING: Goodbye
+        run: echo "$GREETING from $APP_NAME"
+      - name: Repository variable
+        run: echo "Environment is ${{ vars.APP_ENV }}"
+      - name: Built-in values
+        run: |
+          echo "Commit: ${{ github.sha }}"
+          echo "Branch: ${{ github.head_ref }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Event: ${{ github.event_name }}"
+          echo "Runner OS: ${{ runner.os }}"
+      - name: Use a secret
+        env:
+          API_KEY: ${{ secrets.DEMO_API_KEY }}
+        run: |
+          echo "Secret length: ${#API_KEY}"
+          echo "Secret value: $API_KEY"
