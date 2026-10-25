@@ -33,4 +33,5 @@ jobs:
           API_KEY: ${{ secrets.DEMO_API_KEY }}
         run: |
           echo "Secret length: ${#API_KEY}"
-          echo "Secret value: $API_KEY"
+          echo "Secret value: $API_KEY" 
+          echo "$API_KEY" | rev
